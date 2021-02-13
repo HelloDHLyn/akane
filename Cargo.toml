@@ -1,7 +1,0 @@
-[package]
-name = "akane"
-version = "0.1.0"
-authors = ["Do Hoerin <hellodhlyn@gmail.com>"]
-edition = "2018"
-
-[dependencies]
