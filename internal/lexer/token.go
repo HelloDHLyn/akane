@@ -19,3 +19,7 @@ type Token struct {
 	Kind   TokenKind
 	Lexeme []byte
 }
+
+func (t *Token) LexemeString() string {
+	return string(t.Lexeme)
+}

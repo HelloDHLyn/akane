@@ -8,28 +8,67 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func assertBinaryExprssion(
+	t *testing.T,
+	expr expressions.Expression,
+	operator string,
+	leftType expressions.Expression,
+	rightType expressions.Expression,
+) *expressions.BinaryExpression {
+	assert.IsType(t, &expressions.BinaryExpression{}, expr)
+
+	binExpr := expr.(*expressions.BinaryExpression)
+	assert.Equal(t, operator, binExpr.Operator)
+	assert.IsType(t, leftType, binExpr.Left)
+	assert.IsType(t, rightType, binExpr.Right)
+
+	return binExpr
+}
+
 func TestParser_AddExpression(t *testing.T) {
 	source := []byte("42 + 9 - -3")
 	p := parser.NewParser(source)
+
 	expr, err := p.Parse()
-
 	assert.Nil(t, err)
-	assert.IsType(t, &expressions.BinaryExpression{}, expr)
 
-	// (42 + 9) - 3
-	binExpr := expr.(*expressions.BinaryExpression)
-	assert.Equal(t, []byte("-"), binExpr.Operator)
-	assert.IsType(t, &expressions.BinaryExpression{}, binExpr.Left)
-	assert.IsType(t, &expressions.IntLiteral{}, binExpr.Right)
+	binExpr := assertBinaryExprssion(t, expr, "-", &expressions.BinaryExpression{}, &expressions.IntLiteral{})
 
-	// 42 + 9
-	leftExpr := binExpr.Left.(*expressions.BinaryExpression)
-	assert.Equal(t, []byte("+"), leftExpr.Operator)
-	assert.IsType(t, &expressions.IntLiteral{}, leftExpr.Left)
-	assert.IsType(t, &expressions.IntLiteral{}, leftExpr.Right)
+	leftExpr := assertBinaryExprssion(t, binExpr.Left, "+", &expressions.IntLiteral{}, &expressions.IntLiteral{})
 	assert.Equal(t, 42, leftExpr.Left.(*expressions.IntLiteral).Value)
 	assert.Equal(t, 9, leftExpr.Right.(*expressions.IntLiteral).Value)
 
-	// 3
 	assert.Equal(t, -3, binExpr.Right.(*expressions.IntLiteral).Value)
+}
+
+func TestParser_MulExpression(t *testing.T) {
+	source := []byte("42 * 9 / -3")
+	p := parser.NewParser(source)
+
+	expr, err := p.Parse()
+	assert.Nil(t, err)
+
+	binExpr := assertBinaryExprssion(t, expr, "/", &expressions.BinaryExpression{}, &expressions.IntLiteral{})
+
+	leftExpr := assertBinaryExprssion(t, binExpr.Left, "*", &expressions.IntLiteral{}, &expressions.IntLiteral{})
+	assert.Equal(t, 42, leftExpr.Left.(*expressions.IntLiteral).Value)
+	assert.Equal(t, 9, leftExpr.Right.(*expressions.IntLiteral).Value)
+
+	assert.Equal(t, -3, binExpr.Right.(*expressions.IntLiteral).Value)
+}
+
+func TestParser_ComplexAddMulExpression(t *testing.T) {
+	source := []byte("42 + 9 / -3")
+	p := parser.NewParser(source)
+
+	expr, err := p.Parse()
+	assert.Nil(t, err)
+
+	// 42 + (9 / 3)
+	binExpr := assertBinaryExprssion(t, expr, "+", &expressions.IntLiteral{}, &expressions.BinaryExpression{})
+	assert.Equal(t, 42, binExpr.Left.(*expressions.IntLiteral).Value)
+
+	assertBinaryExprssion(t, binExpr.Right, "/", &expressions.IntLiteral{}, &expressions.IntLiteral{})
+	assert.Equal(t, 9, binExpr.Right.(*expressions.BinaryExpression).Left.(*expressions.IntLiteral).Value)
+	assert.Equal(t, -3, binExpr.Right.(*expressions.BinaryExpression).Right.(*expressions.IntLiteral).Value)
 }

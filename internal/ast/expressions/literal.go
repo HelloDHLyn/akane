@@ -15,6 +15,10 @@ func NewIntLiteral(value []byte) *IntLiteral {
 	return &IntLiteral{Value: intValue}
 }
 
+func (*IntLiteral) Type() ExpressionType {
+	return IntLiteralType
+}
+
 func (i *IntLiteral) Eval() objects.Object {
 	return objects.NewInteger(i.Value)
 }
