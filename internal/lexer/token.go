@@ -13,6 +13,7 @@ const (
 	TokenDiv // /
 
 	TokenErr // Unexpected character
+	TokenEOF // End of file
 )
 
 type Token struct {

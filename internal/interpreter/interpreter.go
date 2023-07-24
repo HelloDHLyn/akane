@@ -29,14 +29,14 @@ func (i *Interpreter) Run() error {
 		}
 
 		p := parser.NewParser(source)
-		expr, err := p.Parse()
+		world, err := p.Parse()
 		if err != nil {
 			i.writeString(err.Error())
 			i.write([]byte("\n"))
 			continue
 		}
 
-		obj := expr.Eval()
+		obj := world.Eval(nil)
 		i.write(obj.Bytes())
 		i.write([]byte("\n"))
 	}
@@ -53,6 +53,7 @@ func (i *Interpreter) write(line []byte) error {
 	}
 	return i.writer.Flush()
 }
+
 func (i *Interpreter) writeString(line string) error {
 	_, err := i.writer.WriteString(line)
 	if err != nil {

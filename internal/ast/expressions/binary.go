@@ -3,10 +3,10 @@ package expressions
 import "github.com/hellodhlyn/akane/internal/objects"
 
 var precendence = map[string]int{
-	"+": 1,
-	"-": 1,
-	"*": 2,
-	"/": 2,
+	"*": 1,
+	"/": 1,
+	"+": 2,
+	"-": 2,
 }
 
 type BinaryExpression struct {
@@ -29,7 +29,7 @@ func (*BinaryExpression) Type() ExpressionType {
 
 func (expr *BinaryExpression) Rotate() {
 	rightExpr := expr.Right.(*BinaryExpression)
-	if precendence[expr.Operator] < precendence[rightExpr.Operator] {
+	if precendence[expr.Operator] > precendence[rightExpr.Operator] {
 		return
 	}
 

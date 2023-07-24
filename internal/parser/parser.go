@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/hellodhlyn/akane/internal/ast/expressions"
+	"github.com/hellodhlyn/akane/internal/ast/worlds"
 	"github.com/hellodhlyn/akane/internal/lexer"
 )
 
@@ -20,18 +21,26 @@ func NewParser(source []byte) *Parser {
 	}
 }
 
-func (p *Parser) Parse() (expressions.Expression, error) {
-	expr := p.parseAddExpression()
-	if expr == nil {
-		return nil, errors.New("failed to parse experssion")
-	}
-	return expr, nil
-}
-
 func (p *Parser) takeToken() *lexer.Token {
 	token := p.currToken
 	p.currToken = p.lexer.Scan()
 	return token
+}
+
+func (p *Parser) Parse() (*worlds.World, error) {
+	return p.parseWorld()
+}
+
+func (p *Parser) parseWorld() (*worlds.World, error) {
+	var exprs []expressions.Expression
+	for p.currToken.Kind != lexer.TokenEOF {
+		expr := p.parseAddExpression()
+		if expr == nil {
+			return nil, errors.New("failed to parse experssion")
+		}
+		exprs = append(exprs, expr)
+	}
+	return worlds.NewWorld(exprs), nil
 }
 
 // add_expr -> mul_expr (('+'|'-') add_expr)*

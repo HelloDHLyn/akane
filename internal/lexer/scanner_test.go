@@ -7,6 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestScanner_EOF(t *testing.T) {
+	scanner := lexer.NewScanner([]byte(""))
+	token := scanner.Scan()
+	assert.Equal(t, lexer.TokenEOF, token.Kind)
+
+	scanner = lexer.NewScanner([]byte("123 "))
+	token = scanner.Scan()
+	assert.Equal(t, lexer.TokenIntLiteral, token.Kind)
+	token = scanner.Scan()
+	assert.Equal(t, lexer.TokenEOF, token.Kind)
+}
+
 func TestScanner_Int(t *testing.T) {
 	type Case struct {
 		source []byte

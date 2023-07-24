@@ -40,8 +40,11 @@ func (s *Scanner) takeChar() {
 
 // Token-level operations
 func (s *Scanner) scanToken() TokenKind {
-	for isWhitespace(s.currChar()) {
+	for isWhitespace(s.currChar()) || s.currChar() == '\n' {
 		s.dropChar()
+	}
+	if s.currChar() == 0 {
+		return TokenEOF
 	}
 
 	if s.currChar() == '-' {
